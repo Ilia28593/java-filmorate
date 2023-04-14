@@ -65,7 +65,7 @@ public class UserController {
     public void updateOrAddUser(User user) {
         if (checkContainUsers(user)) {
             users.forEach(u -> {
-                if (u.getId()== user.getId()) {
+                if (u.getId() == user.getId()) {
                     u.setName(user.getName());
                     u.setBirthday(user.getBirthday());
                     u.setLogin(user.getLogin());
