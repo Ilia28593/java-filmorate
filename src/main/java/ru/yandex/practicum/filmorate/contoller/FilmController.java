@@ -21,7 +21,7 @@ public class FilmController {
 
     @GetMapping
     public List<Film> allFilms() {
-        log.info("Пользователей зарегастрировано: {}", filmsSet.size());
+        log.info("ПоLльзователей зарегастрировано: {}", filmsSet.size());
         return new ArrayList<>(filmsSet);
     }
 
