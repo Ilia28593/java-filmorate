@@ -30,4 +30,8 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
+<<<<<<< controllers-films-users
 .vscode/
+=======
+.vscode/
+>>>>>>> main
