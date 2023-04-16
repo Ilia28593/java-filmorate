@@ -1,8 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,8 +22,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final HashSet<Film> filmsSet = new HashSet<>();
+    public static final LocalDate FILM_BIRTHDAY = LocalDate.of(1895, 12, 28);
+    private static final int MAX_NAME_SIZE = 200;
     private int id;
+    private final HashSet<Film> filmsSet = new HashSet<>();
 
     @GetMapping
     public List<Film> allFilms() {
@@ -26,52 +34,55 @@ public class FilmController {
     }
 
     @PostMapping
-    ResponseEntity<Film> postFilm(@RequestBody final Film film) throws ValidationException {
+    public ResponseEntity<Film> postFilm(@RequestBody final Film film) throws ValidationException {
         if (!filmsSet.contains(film)) {
             log.info("{},{}", film, filmsSet.size());
-            return checkFilm(film);
+            addFilm(checkConfigFilm(film));
+            return ResponseEntity.status(HttpStatus.OK).body(film);
         } else {
-            throw new ValidationException("Данный фильм уже добавлен");
+            throw new ValidationException("User already exists");
         }
     }
 
     @PutMapping
-    Film putMet(@RequestBody final Film film) throws ValidationException, NotFoundException {
+    public ResponseEntity<Film> putMet(@RequestBody final Film film) throws ValidationException, NotFoundException {
         if (checkContainFilms(film)) {
             log.info("{}", film);
-            checkFilm(film);
+            updateFilm(checkConfigFilm(film));
+            return ResponseEntity.status(HttpStatus.OK).body(film);
+        } else {
+            throw new NotFoundException("Film with this id was not found" + film.getId());
+        }
+    }
+
+    private Film checkConfigFilm(Film film) throws ValidationException {
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ValidationException("Film name invalid");
+        } else if (film.getDescription().length() > MAX_NAME_SIZE) {
+            throw new ValidationException("Film description invalid");
+        } else if (film.getReleaseDate().isBefore(FILM_BIRTHDAY)) {
+            throw new ValidationException("Film release date invalid");
+        } else if (film.getDuration() < 0) {
+            throw new ValidationException("Film duration invalid");
+        } else {
             return film;
-        } else {
-            throw new NotFoundException("Пользователь с таким id не найден" + film.getId());
         }
     }
 
-    private ResponseEntity<Film> checkFilm(Film film) throws ValidationException {
-        if (!film.getName().isBlank() && film.getDescription().length() < 200
-                && film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28))
-                && film.getDuration() >= 0) {
-            updateOrAddFilm(film);
-            return ResponseEntity.status(200).body(film);
-        } else {
-            throw new ValidationException("Название не может быть пустым, максимальная длина описания —" +
-                    "больше 200 символов, некоректная дата, продолжительность некоректная");
-        }
+    private void updateFilm(Film film) {
+        filmsSet.forEach(u -> {
+            if (u.getId() == film.getId()) {
+                u.setName(film.getName());
+                u.setDescription(film.getDescription());
+                u.setReleaseDate(film.getReleaseDate());
+                u.setDuration(film.getDuration());
+            }
+        });
     }
 
-    private void updateOrAddFilm(Film film) {
-        if (checkContainFilms(film)) {
-            filmsSet.forEach(u -> {
-                if (u.getId() == film.getId()) {
-                    u.setName(film.getName());
-                    u.setDescription(film.getDescription());
-                    u.setReleaseDate(film.getReleaseDate());
-                    u.setDuration(film.getDuration());
-                }
-            });
-        } else {
-            film.setId(++id);
-            filmsSet.add(film);
-        }
+    private void addFilm(Film film) {
+        film.setId(++id);
+        filmsSet.add(film);
     }
 
     private boolean checkContainFilms(Film film) {
