@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -33,21 +34,22 @@ public class FilmController {
         return new ArrayList<>(filmsSet);
     }
 
+
     @PostMapping
-    public ResponseEntity<Film> postFilm(@RequestBody final Film film) throws ValidationException {
+    public ResponseEntity<Film> postFilm(@RequestBody final Film film) throws ValidationException, ObjectAlreadyExistsException {
         if (!filmsSet.contains(film)) {
-            log.info("{},{}", film, filmsSet.size());
+            log.info("Add request: {},{}", film, filmsSet.size());
             addFilm(checkConfigFilm(film));
             return ResponseEntity.status(HttpStatus.OK).body(film);
         } else {
-            throw new ValidationException("User already exists");
+            throw new ObjectAlreadyExistsException("User already exists");
         }
     }
 
     @PutMapping
     public ResponseEntity<Film> putMet(@RequestBody final Film film) throws ValidationException, NotFoundException {
         if (checkContainFilms(film)) {
-            log.info("{}", film);
+            log.info("Request for update: {}", film);
             updateFilm(checkConfigFilm(film));
             return ResponseEntity.status(HttpStatus.OK).body(film);
         } else {
@@ -69,6 +71,7 @@ public class FilmController {
         }
     }
 
+    @SuppressWarnings("checkstyle:WhitespaceAfter")
     private void updateFilm(Film film) {
         filmsSet.forEach(u -> {
             if (u.getId() == film.getId()) {
@@ -77,6 +80,7 @@ public class FilmController {
                 u.setReleaseDate(film.getReleaseDate());
                 u.setDuration(film.getDuration());
             }
+            log.info("{}", film);
         });
     }
 

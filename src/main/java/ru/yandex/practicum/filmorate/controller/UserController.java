@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -33,13 +34,13 @@ public class UserController {
     }
 
     @PostMapping
-    ResponseEntity<User> postUser(@RequestBody final User user) throws ValidationException {
+    ResponseEntity<User> postUser(@RequestBody final User user) throws ObjectAlreadyExistsException, ValidationException {
         if (!users.contains(user)) {
-            log.info("Add request :{}", user);
+            log.info("Add request: {}", user);
             addFilm(checkConfigUser(user));
             return ResponseEntity.status(HttpStatus.OK).body(user);
         } else {
-            throw new ValidationException("User already exists");
+            throw new ObjectAlreadyExistsException("User already exists");
         }
     }
 
@@ -69,6 +70,7 @@ public class UserController {
         }
     }
 
+    @SuppressWarnings("checkstyle:WhitespaceAfter")
     private void updateUser(User user) {
         users.forEach(u -> {
             if (u.getId() == user.getId()) {
@@ -77,6 +79,7 @@ public class UserController {
                 u.setLogin(user.getLogin());
                 u.setEmail(user.getEmail());
             }
+            log.info("{}",user);
         });
     }
 
