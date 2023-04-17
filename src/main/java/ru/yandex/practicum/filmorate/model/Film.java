@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Data
 public class Film {
     private int id;
-
     @NotBlank
     private String name;
     @NonNull
@@ -23,6 +22,7 @@ public class Film {
     @Min(1)
     private long duration;
 
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
     public Film(String name, String description, LocalDate releaseDate, long duration) {
         this.name = name;
         this.description = description;
