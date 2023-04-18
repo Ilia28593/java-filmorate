@@ -28,6 +28,7 @@ public class FilmController {
     private int id;
     private final HashSet<Film> filmsSet = new HashSet<>();
 
+
     @GetMapping
     public List<Film> allFilms() {
         log.info("Пользователей зарегастрировано: {}", filmsSet.size());
