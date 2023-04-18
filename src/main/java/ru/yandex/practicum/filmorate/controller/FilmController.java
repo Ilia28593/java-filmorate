@@ -84,7 +84,6 @@ public class FilmController {
         }
     }
 
-    @SuppressWarnings("checkstyle:WhitespaceAfter")
     private void updateFilm(Film film) {
         filmsSet.forEach(u -> {
             if (u.getId() == film.getId()) {
