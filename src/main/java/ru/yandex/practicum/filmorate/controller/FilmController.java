@@ -28,13 +28,21 @@ public class FilmController {
     private int id;
     private final HashSet<Film> filmsSet = new HashSet<>();
 
+    /**
+     * Контроллер GET, отвечающий за запись в бд сущность Film.
+     * @return возвращает код ответа с списком зарегестрированных Film.
+     */
     @GetMapping
     public List<Film> allFilms() {
         log.info("Пользователей зарегастрировано: {}", filmsSet.size());
         return new ArrayList<>(filmsSet);
     }
 
-
+    /**
+     * Контроллер POST, отвечающий за запись в бд сущность Film.
+     * @param film - передается по http в теле запроса.
+     * @return возвращает код ответа с уже записанной в бд сущностью.
+     */
     @PostMapping
     public ResponseEntity<Film> postFilm(@RequestBody final Film film) throws ValidationException, ObjectAlreadyExistsException {
         if (!filmsSet.contains(film)) {
@@ -46,6 +54,11 @@ public class FilmController {
         }
     }
 
+    /**
+     * Контроллер PUT, отвечающий за оббновление  в бд сущности Film.
+     * @param film - передается по http в теле запроса.
+     * @return возвращает код ответа с уже записанной в бд сущностью.
+     */
     @PutMapping
     public ResponseEntity<Film> putMet(@RequestBody final Film film) throws ValidationException, NotFoundException {
         if (checkContainFilms(film)) {
@@ -71,7 +84,6 @@ public class FilmController {
         }
     }
 
-    @SuppressWarnings("checkstyle:WhitespaceAfter")
     private void updateFilm(Film film) {
         filmsSet.forEach(u -> {
             if (u.getId() == film.getId()) {

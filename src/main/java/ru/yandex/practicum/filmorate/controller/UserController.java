@@ -19,20 +19,30 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final HashSet<User> users = new HashSet<>();
-    private int id;
+    private final AtomicInteger id = new AtomicInteger();
 
+    /**
+     * Контроллер GET, отвечающий за запись в бд сущность User.
+     * @return возвращает код ответа с списком зарегестрированных User.
+     */
     @GetMapping
     public List<User> allUsers() {
         log.info("Number of users: {}", users.size());
         return new ArrayList<>(users);
     }
 
+    /**
+     * Контроллер POST, отвечающий за запись в бд сущность User.
+     * @param user - передается по http в теле запроса.
+     * @return возвращает код ответа с уже записанной в бд сущностью.
+     */
     @PostMapping
     ResponseEntity<User> postUser(@RequestBody final User user) throws ObjectAlreadyExistsException, ValidationException {
         if (!users.contains(user)) {
@@ -44,6 +54,11 @@ public class UserController {
         }
     }
 
+    /**
+     * Контроллер PUT, отвечающий за оббновление  в бд сущности User.
+     * @param user - передается по http в теле запроса.
+     * @return возвращает код ответа с уже записанной в бд сущностью.
+     */
     @PutMapping
     ResponseEntity<User> putUser(@RequestBody User user) throws NotFoundException, ValidationException {
         if (checkContainUsers(user)) {
@@ -70,7 +85,6 @@ public class UserController {
         }
     }
 
-    @SuppressWarnings("checkstyle:WhitespaceAfter")
     private void updateUser(User user) {
         users.forEach(u -> {
             if (u.getId() == user.getId()) {
@@ -79,12 +93,13 @@ public class UserController {
                 u.setLogin(user.getLogin());
                 u.setEmail(user.getEmail());
             }
-            log.info("{}",user);
+            log.info("{}", user);
         });
     }
 
     private void addFilm(User user) {
-        user.setId(++id);
+        id.getAndIncrement();
+        user.setId(id.get());
         users.add(user);
     }
 
