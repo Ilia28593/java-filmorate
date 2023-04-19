@@ -66,7 +66,7 @@ public class FilmController {
             updateFilm(checkConfigFilm(film));
             return ResponseEntity.status(HttpStatus.OK).body(film);
         } else {
-            throw new NotFoundException("Film with this id was not found" + film.getId());
+            throw new NotFoundException("Film with this id was not found " + film.getId());
         }
     }
 
