@@ -14,6 +14,7 @@ target/
 !.mvn/**
 !mvnw.cmd
 !mwnw
+!HELP.md
 !**/src/main/**/target/
 !**/src/test/**/target/
 

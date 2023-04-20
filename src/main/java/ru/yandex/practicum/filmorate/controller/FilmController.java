@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
@@ -25,7 +26,7 @@ import java.util.List;
 public class FilmController {
     public static final LocalDate FILM_BIRTHDAY = LocalDate.of(1895, 12, 28);
     private static final int MAX_NAME_SIZE = 200;
-    private int id;
+    private final AtomicInteger id = new AtomicInteger();
     private final HashSet<Film> filmsSet = new HashSet<>();
 
     /**
@@ -33,7 +34,7 @@ public class FilmController {
      * @return возвращает код ответа с списком зарегестрированных Film.
      */
     @GetMapping
-    public List<Film> allFilms() {
+    public List<Film> getAllFilms() {
         log.info("Пользователей зарегастрировано: {}", filmsSet.size());
         return new ArrayList<>(filmsSet);
     }
@@ -44,7 +45,7 @@ public class FilmController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PostMapping
-    public ResponseEntity<Film> postFilm(@RequestBody final Film film) throws ValidationException, ObjectAlreadyExistsException {
+    public ResponseEntity<Film> createFilm(@RequestBody final Film film) throws ValidationException, ObjectAlreadyExistsException {
         if (!filmsSet.contains(film)) {
             log.info("Add request: {},{}", film, filmsSet.size());
             addFilm(checkConfigFilm(film));
@@ -60,10 +61,10 @@ public class FilmController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PutMapping
-    public ResponseEntity<Film> putMet(@RequestBody final Film film) throws ValidationException, NotFoundException {
+    public ResponseEntity<Film> updateFilm(@RequestBody final Film film) throws ValidationException, NotFoundException {
         if (checkContainFilms(film)) {
             log.info("Request for update: {}", film);
-            updateFilm(checkConfigFilm(film));
+            updateParapetsFilm(checkConfigFilm(film));
             return ResponseEntity.status(HttpStatus.OK).body(film);
         } else {
             throw new NotFoundException("Film with this id was not found " + film.getId());
@@ -84,7 +85,7 @@ public class FilmController {
         }
     }
 
-    private void updateFilm(Film film) {
+    private void updateParapetsFilm(Film film) {
         filmsSet.forEach(u -> {
             if (u.getId() == film.getId()) {
                 u.setName(film.getName());
@@ -92,12 +93,14 @@ public class FilmController {
                 u.setReleaseDate(film.getReleaseDate());
                 u.setDuration(film.getDuration());
             }
-            log.info("{}", film);
+            log.info("Update {} for bd: {}", film.getName(), film);
         });
     }
 
     private void addFilm(Film film) {
-        film.setId(++id);
+        id.getAndIncrement();
+        film.setId(id.get());
+        log.info("Add for bd: {}", film);
         filmsSet.add(film);
     }
 

@@ -18,7 +18,6 @@ public class User {
 
     private LocalDate birthday;
 
-    @SuppressWarnings("checkstyle:MissingJavadocMethod")
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;
         this.login = login;

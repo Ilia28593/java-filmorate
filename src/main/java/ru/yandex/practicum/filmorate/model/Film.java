@@ -23,7 +23,6 @@ public class Film {
     @Min(1)
     private long duration;
 
-    @SuppressWarnings("checkstyle:MissingJavadocMethod")
     public Film(String name, String description, LocalDate releaseDate, long duration) {
         this.name = name;
         this.description = description;
