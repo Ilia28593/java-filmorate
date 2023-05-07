@@ -80,7 +80,7 @@ public class FilmService implements FilmStorage {
     }
 
     public Film removeLike(long idFilm, long idUser) {
-        if (getFilm(idFilm).getLikeList().contains(idUser)) {
+        if  (getFilm(idFilm).getLikeList().contains(idUser)) {
             getFilm(idFilm).getLikeList().remove(idUser);
             return getFilm(idFilm);
         } else {
