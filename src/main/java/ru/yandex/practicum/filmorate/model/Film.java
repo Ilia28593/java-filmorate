@@ -7,9 +7,12 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
+    @Min(1)
     private int id;
     @NotBlank
     private String name;
@@ -21,8 +24,8 @@ public class Film {
     @NonNull
     @Min(1)
     private long duration;
+    private Set<Long> likeList = new HashSet<>();
 
-    @SuppressWarnings("checkstyle:MissingJavadocMethod")
     public Film(String name, String description, LocalDate releaseDate, long duration) {
         this.name = name;
         this.description = description;
