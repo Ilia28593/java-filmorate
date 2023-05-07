@@ -33,7 +33,7 @@ public class UserController {
      * @return возвращает код ответа с списком зарегестрированных User.
      */
     @GetMapping
-    public List<User> allUsers() {
+    public List<User> getUsers() {
         log.info("Number of users: {}", users.size());
         return new ArrayList<>(users);
     }
@@ -44,7 +44,7 @@ public class UserController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PostMapping
-    ResponseEntity<User> postUser(@RequestBody final User user) throws ObjectAlreadyExistsException, ValidationException {
+    ResponseEntity<User> createUser(@RequestBody final User user) throws ObjectAlreadyExistsException, ValidationException {
         if (!users.contains(user)) {
             log.info("Add request: {}", user);
             addFilm(checkConfigUser(user));
@@ -60,10 +60,10 @@ public class UserController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PutMapping
-    ResponseEntity<User> putUser(@RequestBody User user) throws NotFoundException, ValidationException {
+    ResponseEntity<User> updateUser(@RequestBody User user) throws NotFoundException, ValidationException {
         if (checkContainUsers(user)) {
             log.info("Request for update: {}", user);
-            updateUser(checkConfigUser(user));
+            updateInfoUser(checkConfigUser(user));
             return ResponseEntity.status(HttpStatus.OK).body(user);
         } else {
             throw new NotFoundException("User with this id was not found: " + user.getId());
@@ -85,7 +85,7 @@ public class UserController {
         }
     }
 
-    private void updateUser(User user) {
+    private void updateInfoUser(User user) {
         users.forEach(u -> {
             if (u.getId() == user.getId()) {
                 u.setName(user.getName());
@@ -93,14 +93,14 @@ public class UserController {
                 u.setLogin(user.getLogin());
                 u.setEmail(user.getEmail());
             }
-            log.info("{}", user);
+            log.info("Update {} for bd: {}", user.getName(), user);
         });
     }
 
     private void addFilm(User user) {
         id.getAndIncrement();
         user.setId(id.get());
-        users.add(user);
+        log.info("Add for bd: {}", user);
     }
 
     private boolean checkContainUsers(User user) {
