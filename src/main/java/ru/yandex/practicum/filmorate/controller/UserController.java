@@ -101,7 +101,6 @@ public class UserController {
         id.getAndIncrement();
         user.setId(id.get());
         log.info("Add for bd: {}", user);
-        users.add(user);
     }
 
     private boolean checkContainUsers(User user) {
