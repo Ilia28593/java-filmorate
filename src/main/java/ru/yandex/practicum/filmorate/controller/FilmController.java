@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ru.yandex.practicum.filmorate.Constance.FILM_BIRTHDAY_FIRST;
 import static ru.yandex.practicum.filmorate.Constance.MAX_SIZE_DESCRIPTION;
@@ -28,6 +29,7 @@ import static ru.yandex.practicum.filmorate.Constance.MAX_SIZE_DESCRIPTION;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
+
     private final FilmService filmService;
 
     /**
@@ -47,7 +49,7 @@ public class FilmController {
      * @param film - передается по http в теле запроса.
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
-    @PostMapping
+  @PostMapping
     public ResponseEntity<Film> postFilm(@RequestBody final Film film) {
         log.info("Add request: {},{}", film, filmService.getSetFilm().size());
         filmService.addFilm(checkConfigFilm(film));
@@ -62,7 +64,7 @@ public class FilmController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PutMapping
-    public ResponseEntity<Film> putMet(@RequestBody final Film film) {
+public ResponseEntity<Film> putMet(@RequestBody final Film film) {
         log.info("Request for update: {}", film);
         filmService.updateFilm(checkConfigFilm(film));
         return ResponseEntity.status(HttpStatus.OK).body(film);
