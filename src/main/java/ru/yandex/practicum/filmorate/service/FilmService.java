@@ -80,8 +80,12 @@ public class FilmService implements FilmStorage {
     }
 
     public Film removeLike(long idFilm, long idUser) {
-        getFilm(idFilm).getLikeList().remove(idUser);
-        log.info("removeLike {}", getFilm(idFilm));
-        return getFilm(idFilm);
+        if(getFilm(idFilm).getLikeList().contains(idUser)) {
+            getFilm(idFilm).getLikeList().remove(idUser);
+            log.info("removeLike {}", getFilm(idFilm));
+            return getFilm(idFilm);
+        } else {
+            throw new NotFoundException(String.format("%s is not found from repository", idUser));
+        }
     }
 }
