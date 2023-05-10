@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -31,7 +31,7 @@ public class UserService implements UserStorage {
         if (checkContainUsers(user)) {
             inMemoryUserStorage.updateUser(user);
         } else {
-            throw new NotFoundException(String.format("%s is not found from repository.", user.getName()));
+            throw new UserNotFoundException(user.getId());
         }
     }
 
@@ -40,7 +40,7 @@ public class UserService implements UserStorage {
         if (checkContainUsers(user)) {
             inMemoryUserStorage.removeUser(user);
         } else {
-            throw new NotFoundException(String.format("%s is not found from repository.", user.getName()));
+            throw new UserNotFoundException(user.getId());
         }
     }
 
@@ -72,11 +72,11 @@ public class UserService implements UserStorage {
         return friendList;
     }
 
-    public List<User> listGeneralFriends(long userd, long userFriendd) {
+    public List<User> listGeneralFriends(long userid, long userFriend) {
         List<User> frienList = new ArrayList<>();
-        getUser(userd)
+        getUser(userid)
                 .getSetFriendsId().stream()
-                .flatMap(f -> getUser(userFriendd)
+                .flatMap(f -> getUser(userFriend)
                         .getSetFriendsId().stream()
                         .filter(s -> Objects.equals(s, f)))
                 .forEach(x -> frienList.add(getUser(x)));
@@ -89,6 +89,6 @@ public class UserService implements UserStorage {
 
     public User getUser(long id) {
         return inMemoryUserStorage.getUserList().stream().filter(f -> f.getId() == id).findFirst()
-                .orElseThrow(() -> new NotFoundException(String.format("%s is not found from repository", id)));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 }

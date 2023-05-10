@@ -37,7 +37,7 @@ public class FilmController {
      * @return возвращает код ответа с списком зарегестрированных Film.
      */
     @GetMapping
-    public List<Film> allFilms() {
+    public List<Film> getAllFilms() {
         log.info("Пользователей зарегастрировано: {}", filmService.getSetFilm().size());
         return new ArrayList<>(filmService.getSetFilm());
     }
@@ -48,11 +48,10 @@ public class FilmController {
      * @param film - передается по http в теле запроса.
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
-  @PostMapping
-    public ResponseEntity<Film> postFilm(@RequestBody final Film film) {
-        log.info("Add request: {},{}", film, filmService.getSetFilm().size());
-        filmService.addFilm(checkConfigFilm(film));
-        log.info("Add request: {},{}", film, filmService.getSetFilm().size());
+    @PostMapping
+    public ResponseEntity<Film> createFilm(@RequestBody final Film film) {
+        filmService.addFilm(checkValidationFilm(film));
+        log.info("Add request: {}", film);
         return ResponseEntity.status(HttpStatus.OK).body(film);
     }
 
@@ -63,9 +62,9 @@ public class FilmController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PutMapping
-public ResponseEntity<Film> putMet(@RequestBody final Film film) {
+    public ResponseEntity<Film> updateFilm(@RequestBody final Film film) {
         log.info("Request for update: {}", film);
-        filmService.updateFilm(checkConfigFilm(film));
+        filmService.updateFilm(checkValidationFilm(film));
         return ResponseEntity.status(HttpStatus.OK).body(film);
     }
 
@@ -117,7 +116,7 @@ public ResponseEntity<Film> putMet(@RequestBody final Film film) {
         return ResponseEntity.status(HttpStatus.OK).body(filmService.getFavoriteFilms(count));
     }
 
-    private Film checkConfigFilm(Film film) throws ValidationException {
+    private Film checkValidationFilm(Film film) throws ValidationException {
         if (film.getName() == null || film.getName().isBlank()) {
             throw new ValidationException("Film name invalid");
         } else if (film.getDescription().length() > MAX_SIZE_DESCRIPTION) {

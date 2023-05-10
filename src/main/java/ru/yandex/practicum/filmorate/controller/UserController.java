@@ -36,7 +36,7 @@ public class UserController {
      * @return возвращает код ответа с списком зарегестрированных User.
      */
     @GetMapping
-    public List<User> allUsers() {
+    public List<User> getAllUsers() {
         log.info("Number of users: {}", userService.getUserList().size());
         return userService.getUserList();
     }
@@ -48,7 +48,7 @@ public class UserController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PostMapping
-    ResponseEntity<User> postUser(@RequestBody final User user) throws ObjectAlreadyExistsException, ValidationException {
+    public ResponseEntity<User> createUser(@RequestBody final User user) throws ObjectAlreadyExistsException, ValidationException {
         log.info("Add request: {}", user);
         userService.addUser(checkConfigUser(user));
         return ResponseEntity.status(HttpStatus.OK).body(user);
@@ -61,7 +61,7 @@ public class UserController {
      * @return возвращает код ответа с уже записанной в бд сущностью.
      */
     @PutMapping
-    ResponseEntity<User> putUser(@RequestBody User user) throws NotFoundException, ValidationException {
+    ResponseEntity<User> updateUser(@RequestBody User user) throws NotFoundException, ValidationException {
         log.info("Request for update: {}", user);
         userService.updateUser(checkConfigUser(user));
         return ResponseEntity.status(HttpStatus.OK).body(user);

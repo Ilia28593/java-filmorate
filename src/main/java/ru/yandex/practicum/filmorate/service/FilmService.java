@@ -3,11 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilmService implements FilmStorage {
 
-    private final FilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+    private final FilmStorage inMemoryFilmStorage;
 
     @Override
     public void addFilm(Film film) {
@@ -36,16 +36,16 @@ public class FilmService implements FilmStorage {
         if (checkContainFilms(film)) {
             inMemoryFilmStorage.updateFilm(film);
         } else {
-            throw new NotFoundException(String.format("%s is not found from repository.", film.getName()));
+            throw new FilmNotFoundException(film.getId());
         }
     }
 
     @Override
-    public void removeFilm(Film film) throws NotFoundException {
+    public void removeFilm(Film film) {
         if (checkContainFilms(film)) {
             inMemoryFilmStorage.removeFilm(film);
         } else {
-            throw new NotFoundException(String.format("%s is not found from repository", film.getName()));
+            throw new FilmNotFoundException(film.getId());
         }
     }
 
@@ -56,7 +56,7 @@ public class FilmService implements FilmStorage {
 
     public Film getFilm(long filmId) {
         return getSetFilm().stream().filter(f -> f.getId() == filmId).findFirst()
-                .orElseThrow(() -> new NotFoundException(String.format("%s is not found from repository", filmId)));
+                .orElseThrow(() -> new FilmNotFoundException(filmId));
     }
 
     public boolean checkContainFilms(Film film) {
@@ -84,7 +84,7 @@ public class FilmService implements FilmStorage {
             getFilm(idFilm).getLikeList().remove(idUser);
             return getFilm(idFilm);
         } else {
-            throw new NotFoundException(String.format("%s is not found from repository", idUser));
+            throw new UserNotFoundException(idUser);
         }
     }
 }
