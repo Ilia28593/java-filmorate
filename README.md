@@ -42,4 +42,3 @@ ResponseEntity<List<User>> getListFriends(@PathVariable long id) {
 log.info("Request user for get to list friend {}", id);
 return ResponseEntity.status(HttpStatus.OK).body(userService.listFriends(id));
   }
-
