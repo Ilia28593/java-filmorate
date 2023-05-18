@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Friends;
+import ru.yandex.practicum.filmorate.model.Status;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -51,36 +53,51 @@ public class UserService implements UserStorage {
     public User addForFriends(long userId, long userFriendId) {
         User user1 = getUser(userId);
         User user2 = getUser(userFriendId);
-        user1.getSetFriendsId().add(userFriendId);
-        user2.getSetFriendsId().add(userId);
+        user1.getFriends().add(new Friends(userId, userFriendId, Status.AWAITING_CONFIRM));
+        user2.getFriends().add(new Friends(userFriendId, userId, Status.AWAITING_CONFIRM));
         return user1;
     }
 
     public User removeForFriends(long userId, long userFriendId) {
-        getUser(userId)
-                .getSetFriendsId().remove(userFriendId);
-        getUser(userFriendId)
-                .getSetFriendsId().remove(userId);
+        removeFriends(userId, userFriendId);
+        removeFriends(userFriendId, userId);
         return getUser(userFriendId);
     }
 
     public List<User> listFriends(long userId) {
         List<User> friendList = new ArrayList<>();
         getUser(userId)
-                .getSetFriendsId()
-                .forEach(i -> friendList.add(getUser(i)));
+                .getFriends()
+                .stream()
+                .filter(f -> f.getStatus().equals(Status.FRIEND))
+                .forEach(i -> friendList.add(getUser(i.getFriendTwo())));
         return friendList;
     }
 
     public List<User> listGeneralFriends(long userid, long userFriend) {
-        List<User> frienList = new ArrayList<>();
+        List<User> friendList = new ArrayList<>();
         getUser(userid)
-                .getSetFriendsId().stream()
+                .getFriends()
+                .stream()
+                .filter(f -> f.getStatus().equals(Status.FRIEND))
+                .map(Friends::getFriendTwo)
                 .flatMap(f -> getUser(userFriend)
-                        .getSetFriendsId().stream()
+                        .getFriends()
+                        .stream()
+                        .filter(fr -> fr.getStatus().equals(Status.FRIEND))
+                        .map(Friends::getFriendTwo)
                         .filter(s -> Objects.equals(s, f)))
-                .forEach(x -> frienList.add(getUser(x)));
-        return frienList;
+                .forEach(x -> friendList.add(getUser(x)));
+        return friendList;
+    }
+
+    private void removeFriends(long user, long friend) {
+        getUser(user).getFriends()
+                .remove(getUser(user).getFriends()
+                        .stream()
+                        .filter(f -> f.getFriendTwo() == friend)
+                        .findFirst()
+                        .orElseThrow(() -> new UserNotFoundException(friend)));
     }
 
     private boolean checkContainUsers(User user) {
