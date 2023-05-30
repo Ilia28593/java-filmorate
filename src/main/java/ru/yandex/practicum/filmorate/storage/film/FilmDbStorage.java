@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-@Slf4j
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -34,9 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findAll() {
         List<Film> films = new ArrayList<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-                select * 
-                from films""");
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from films");
         while (rs.next()) {
             Film newFilm = new Film(
                     rs.getString("name").trim(),
@@ -58,9 +54,7 @@ public class FilmDbStorage implements FilmStorage {
         id.getAndIncrement();
         film.setId(Long.parseLong(String.valueOf(id)));
 
-        String sqlQuery = """
-                insert into films(id, name, description, releaseDate, duration, rate,mpa) 
-                        values (?, ?, ?, ?, ?, ?, ?)""";
+        String sqlQuery = "insert into films(id, name, description, releaseDate, duration, rate,mpa) values (?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getRate(), film.getMpa().getId());
 
@@ -79,9 +73,7 @@ public class FilmDbStorage implements FilmStorage {
     @Transactional
     @Override
     public Film filmUpdate(Film film) {
-        String sqlQuery = """
-                update films set name = ?, description = ?, releaseDate = ?, duration = ?, rate = ?, mpa = ?
-                where id = ?""";
+        String sqlQuery = "update films set name = ?, description = ?, releaseDate = ?, duration = ?, rate = ?, mpa = ? where id = ?";
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getRate(), film.getMpa().getId(), film.getId());
         String sqlQueryDel = """
@@ -101,11 +93,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film filmById(Long id) {
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-        select * from films 
-        where id = ?""", id);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
         if (rs.next()) {
-            log.info("Найден фильм: {} {}", rs.getString("id"), rs.getString("name"));
             Film newFilm = new Film(
                     rs.getString("name").trim(),
                     rs.getString("description").trim(),
@@ -125,10 +114,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Genre> setGenres(Long id) {
 
         List<Genre> listGenres = new ArrayList<>();
-        String sqlQuery2 = """
-        select film_id, genre_id, genres_name 
-        from films_genres 
-        left join genres on films_genres.genre_id = genres.id where film_id = ?""";
+        String sqlQuery2 = "select film_id, genre_id, genres_name from films_genres left join genres on films_genres.genre_id = genres.id where film_id = ?";
         SqlRowSet rs2 = jdbcTemplate.queryForRowSet(sqlQuery2, id);
 
         while (rs2.next()) {

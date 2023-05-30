@@ -17,9 +17,7 @@ public class GenreDbStorage {
 
     public LinkedHashSet<Genre> getAllGenres() {
         LinkedHashSet<Genre> genres = new LinkedHashSet<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-                select *
-                 from genres """);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from genres ");
         while (rs.next()) {
             Genre genre = new Genre(
                     rs.getInt("id"),
@@ -31,10 +29,7 @@ public class GenreDbStorage {
     }
 
     public Genre getGenresById(Integer id) {
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-                select *
-                 from genres
-                  where id = ?""", id);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from genres where id = ?", id);
         if (rs.next()) {
             Genre genre = new Genre(
                     rs.getInt("id"),
