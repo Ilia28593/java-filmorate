@@ -22,9 +22,7 @@ public class UserService {
     public void addFriends(long id, long friendId) {
         userDbStorage.UserById(id);
         userDbStorage.UserById(friendId);
-        String sqlQuery = """
-                insert into  users_friend(user_id, friend_id)                 
-                values (?, ?)""";
+        String sqlQuery = "insert into users_friend(user_id, friend_id) values (?, ?)";
         jdbcTemplate.update(sqlQuery,
                 id, friendId
         );
@@ -35,11 +33,7 @@ public class UserService {
     public void deleteFriends(Long id, Long friendId) {
         userDbStorage.UserById(id);
         userDbStorage.UserById(friendId);
-        String sqlQuery = """
-                delete from users_friend 
-                where user_id = ? 
-                and friend_id = ?
-                """;
+        String sqlQuery = "delete from users_friend where user_id = ? and friend_id = ?";
         jdbcTemplate.update(sqlQuery, id, friendId);
 
     }
@@ -83,12 +77,7 @@ public class UserService {
     public Set<Long> getSetIdFriends(Long userId) {
         userDbStorage.UserById(userId);
         Set<Long> listIdUser = new HashSet<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(
-                """
-                        select * 
-                        from users_friend 
-                        where user_id = ?
-                        """, userId);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from users_friend where user_id = ?", userId);
         while (rs.next()) {
             listIdUser.add((long) rs.getInt("friend_id"));
         }
