@@ -30,12 +30,12 @@ public class FilmService {
         userDbStorage.UserById(userId);
         String sqlQuery = "delete from film_likes where film_id = ? and user_id = ?";
         jdbcTemplate.update(sqlQuery, id, userId);
-
     }
 
     public List<Film> getPopular(Integer count) {
         List<Film> filmSet = new ArrayList<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("select films.ID, count(film_likes.USER_ID) as count_user  from films left outer join film_likes on FILMS.ID = FILM_LIKES.FILM_ID group by FILMS.ID order by count_user desc limit ?", count);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select films.ID, count(film_likes.USER_ID) as count_user  " +
+                "from films left outer join film_likes on FILMS.ID = FILM_LIKES.FILM_ID group by FILMS.ID order by count_user desc limit ?", count);
         while (rs.next()) {
             filmSet.add(filmDbStorage.filmById((long) rs.getInt("id")));
         }
