@@ -20,9 +20,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-                select * 
-                from users""");
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from users");
         if (rs.next()) {
             User newUser = new User();
             newUser.setEmail(rs.getString("email").trim());
@@ -39,18 +37,14 @@ public class UserDbStorage implements UserStorage {
     public User createUser(User user) {
         id.getAndIncrement();
         user.setId(Long.parseLong(String.valueOf(id)));
-        String sqlQuery = """
-                insert into users(id, email, login, name, birthday)
-                values (?, ?, ?, ?, ?)""";
+        String sqlQuery = "insert into users(id, email, login, name, birthday) values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
         return user;
     }
 
     @Override
     public User updateUser(User user) {
-        String sqlQuery = """
-                update users set email = ?, login = ?, name = ?, birthday = ? 
-                where id = ?""";
+        String sqlQuery = "update users set email = ?, login = ?, name = ?, birthday = ? where id = ?";
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
         return UserById(user.getId());
     }
@@ -58,9 +52,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User UserById(Long id) {
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-                select * from users 
-                where id = ?""", id);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(" select * from users where id = ?", id);
         if (rs.next()) {
             User newUser = new User(
                     rs.getString("email").trim(),

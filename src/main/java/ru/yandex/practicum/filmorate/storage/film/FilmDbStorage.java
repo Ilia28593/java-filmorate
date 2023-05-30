@@ -84,9 +84,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film filmById(Long id) {
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
         if (rs.next()) {
-            Film newFilm = new Film(rs.getString("name").trim(), rs.getString("description").trim(), rs.getDate("releaseDate").toLocalDate(), rs.getInt("duration")
-
-            );
+            Film newFilm = new Film(rs.getString("name").trim(), rs.getString("description").trim(), rs.getDate("releaseDate").toLocalDate(), rs.getInt("duration"));
             newFilm.setId(rs.getInt("id"));
             newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
             newFilm.setGenres(setGenres(id));
