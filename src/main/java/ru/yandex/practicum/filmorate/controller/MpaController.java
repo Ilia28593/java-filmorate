@@ -12,9 +12,13 @@ import java.util.LinkedHashSet;
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 public class MpaController {
     private final MpaDbStorage mpaDbStorage;
+
+    @Autowired
+    public MpaController(MpaDbStorage mpaDbStorage) {
+        this.mpaDbStorage = mpaDbStorage;
+    }
 
     @GetMapping(value = "/mpa")
     public LinkedHashSet<Mpa> findAll() {
