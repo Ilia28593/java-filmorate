@@ -34,12 +34,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = new ArrayList<>();
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from films");
         while (rs.next()) {
-            Film newFilm = new Film(
-                    rs.getString("name").trim(),
-                    rs.getString("description").trim(),
-                    rs.getDate("releaseDate").toLocalDate(),
-                    rs.getInt("duration")
-            );
+            Film newFilm = new Film(rs.getString("name").trim(), rs.getString("description").trim(), rs.getDate("releaseDate").toLocalDate(), rs.getInt("duration"));
             newFilm.setId(rs.getInt("id"));
             newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
             newFilm.setGenres(setGenres(Long.valueOf(rs.getInt("id"))));
@@ -55,8 +50,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(Long.parseLong(String.valueOf(id)));
 
         String sqlQuery = "insert into films(id, name, description, releaseDate, duration, rate,mpa) values (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getRate(), film.getMpa().getId());
+        jdbcTemplate.update(sqlQuery, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId());
 
         List<Genre> genreList = film.getGenres();
         if (genreList != null) {
@@ -74,17 +68,12 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film filmUpdate(Film film) {
         String sqlQuery = "update films set name = ?, description = ?, releaseDate = ?, duration = ?, rate = ?, mpa = ? where id = ?";
-        jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-                film.getRate(), film.getMpa().getId(), film.getId());
-        String sqlQueryDel = """
-                delete from films_genres 
-                where FILM_ID = ?""";
+        jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
+        String sqlQueryDel = "delete from films_genres where FILM_ID = ?";
         jdbcTemplate.update(sqlQueryDel, film.getId());
         if (film.getGenres() != null) {
             for (Genre genreId : film.getGenres()) {
-                String sqlQuery2 = """
-                        merge into films_genres key (GENRE_ID) 
-                        values (?,?)""";
+                String sqlQuery2 = "merge into films_genres key (GENRE_ID) values (?,?)";
                 jdbcTemplate.update(sqlQuery2, film.getId(), genreId.getId());
             }
         }
@@ -95,16 +84,12 @@ public class FilmDbStorage implements FilmStorage {
     public Film filmById(Long id) {
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
         if (rs.next()) {
-            Film newFilm = new Film(
-                    rs.getString("name").trim(),
-                    rs.getString("description").trim(),
-                    rs.getDate("releaseDate").toLocalDate(),
-                    rs.getInt("duration")
+            Film newFilm = new Film(rs.getString("name").trim(), rs.getString("description").trim(), rs.getDate("releaseDate").toLocalDate(), rs.getInt("duration")
 
             );
             newFilm.setId(rs.getInt("id"));
             newFilm.setMpa(Mpa.forValues(rs.getInt("mpa")));
-            newFilm.setGenres( setGenres(id));
+            newFilm.setGenres(setGenres(id));
             return newFilm;
         } else {
             throw new FilmNotFoundException(id);
@@ -118,9 +103,7 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet rs2 = jdbcTemplate.queryForRowSet(sqlQuery2, id);
 
         while (rs2.next()) {
-            Genre newGenre = new Genre(
-                    rs2.getInt("genre_id"),
-                    rs2.getString("GENRES_NAME"));
+            Genre newGenre = new Genre(rs2.getInt("genre_id"), rs2.getString("GENRES_NAME"));
             listGenres.add(newGenre);
         }
         return listGenres;
