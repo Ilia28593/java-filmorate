@@ -15,11 +15,15 @@ import java.util.LinkedHashSet;
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 @RequestMapping("/genres")
 public class GenreController {
 
     private final GenreDbStorage genreDbStorage;
+
+    @Autowired
+    public GenreController(GenreDbStorage genreDbStorage) {
+        this.genreDbStorage = genreDbStorage;
+    }
 
     @GetMapping
     public LinkedHashSet<Genre> findAll() {
