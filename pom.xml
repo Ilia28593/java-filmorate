@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
-			<version>RELEASE</version>
+			<version>24.0.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>2.1.212</version>
+			<version>1.4.200</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -88,12 +88,6 @@
 			<version>3.1.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<version>3.1.0</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -102,14 +96,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>15</source>
-                    <target>15</target>
-                </configuration>
-            </plugin>
         </plugins>
 	</build>
 
