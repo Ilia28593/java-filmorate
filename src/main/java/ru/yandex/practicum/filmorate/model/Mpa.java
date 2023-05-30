@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
