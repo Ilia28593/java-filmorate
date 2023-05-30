@@ -1,111 +1,97 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.model.Friends;
-import ru.yandex.practicum.filmorate.model.Status;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserStorage {
-    private final InMemoryUserStorage inMemoryUserStorage;
+public class UserService {
+    private final UserDbStorage userDbStorage;
+    private final JdbcTemplate jdbcTemplate;
 
-    @Override
-    public void addUser(User user) {
-        if (!checkContainUsers(user)) {
-            inMemoryUserStorage.addUser(user);
+    public void addFriends(long id, long friendId) {
+        userDbStorage.UserById(id);
+        userDbStorage.UserById(friendId);
+        String sqlQuery = """
+                insert into  users_friend(user_id, friend_id)                 
+                values (?, ?)""";
+        jdbcTemplate.update(sqlQuery,
+                id, friendId
+        );
+
+
+    }
+
+    public void deleteFriends(Long id, Long friendId) {
+        userDbStorage.UserById(id);
+        userDbStorage.UserById(friendId);
+        String sqlQuery = """
+                delete from users_friend 
+                where user_id = ? 
+                and friend_id = ?
+                """;
+        jdbcTemplate.update(sqlQuery, id, friendId);
+
+    }
+
+    public List<User> getCommonFriends(Long id, Long friendId) {
+        Set<Long> friendsList = getSetIdFriends(id);
+        Set<Long> secondFriendsList = getSetIdFriends(friendId);
+        if (friendsList.isEmpty() || secondFriendsList.isEmpty()) {
+            return new ArrayList<>();
         } else {
-            throw new ObjectAlreadyExistsException(String.format("This user %s is content in repository.", user.getName()));
+            return secondFriendsList.stream()
+                    .filter(friendsList::contains)
+                    .map(this::getUserById)
+                    .collect(Collectors.toList());
         }
+
     }
 
-    @Override
-    public void updateUser(User user) {
-        if (checkContainUsers(user)) {
-            inMemoryUserStorage.updateUser(user);
-        } else {
-            throw new UserNotFoundException(user.getId());
+    public List<User> getSetFriends(Long userId) {
+        Set<Long> listId = getSetIdFriends(userId);
+        return listId.stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+
+    }
+
+    public User getUserById(Long userId) {
+        return userDbStorage.UserById(userId);
+    }
+
+    public User create(User user) {
+        return userDbStorage.createUser(user);
+    }
+
+    public User updateUser(User user) {
+        userDbStorage.UserById(user.getId());
+        userDbStorage.updateUser(user);
+        return user;
+    }
+
+    public Set<Long> getSetIdFriends(Long userId) {
+        userDbStorage.UserById(userId);
+        Set<Long> listIdUser = new HashSet<>();
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(
+                """
+                        select * 
+                        from users_friend 
+                        where user_id = ?
+                        """, userId);
+        while (rs.next()) {
+            listIdUser.add((long) rs.getInt("friend_id"));
         }
-    }
-
-    @Override
-    public void removeUser(User user) {
-        if (checkContainUsers(user)) {
-            inMemoryUserStorage.removeUser(user);
-        } else {
-            throw new UserNotFoundException(user.getId());
-        }
-    }
-
-    public List<User> getUserList() {
-        return inMemoryUserStorage.getUserList();
-    }
-
-    public User addForFriends(long userId, long userFriendId) {
-        User user1 = getUser(userId);
-        User user2 = getUser(userFriendId);
-        user1.getFriends().add(new Friends(userId, userFriendId, Status.AWAITING_CONFIRM));
-        user2.getFriends().add(new Friends(userFriendId, userId, Status.AWAITING_CONFIRM));
-        return user1;
-    }
-
-    public User removeForFriends(long userId, long userFriendId) {
-        removeFriends(userId, userFriendId);
-        removeFriends(userFriendId, userId);
-        return getUser(userFriendId);
-    }
-
-    public List<User> listFriends(long userId) {
-        List<User> friendList = new ArrayList<>();
-        getUser(userId)
-                .getFriends()
-                .stream()
-                .filter(f -> f.getStatus().equals(Status.FRIEND))
-                .forEach(i -> friendList.add(getUser(i.getFriendTwo())));
-        return friendList;
-    }
-
-    public List<User> listGeneralFriends(long userid, long userFriend) {
-        List<User> friendList = new ArrayList<>();
-        getUser(userid)
-                .getFriends()
-                .stream()
-                .filter(f -> f.getStatus().equals(Status.FRIEND))
-                .map(Friends::getFriendTwo)
-                .flatMap(f -> getUser(userFriend)
-                        .getFriends()
-                        .stream()
-                        .filter(fr -> fr.getStatus().equals(Status.FRIEND))
-                        .map(Friends::getFriendTwo)
-                        .filter(s -> Objects.equals(s, f)))
-                .forEach(x -> friendList.add(getUser(x)));
-        return friendList;
-    }
-
-    private void removeFriends(long user, long friend) {
-        getUser(user).getFriends()
-                .remove(getUser(user).getFriends()
-                        .stream()
-                        .filter(f -> f.getFriendTwo() == friend)
-                        .findFirst()
-                        .orElseThrow(() -> new UserNotFoundException(friend)));
-    }
-
-    private boolean checkContainUsers(User user) {
-        return inMemoryUserStorage.getUserList().stream().anyMatch(u -> u.getId() == user.getId());
-    }
-
-    public User getUser(long id) {
-        return inMemoryUserStorage.getUserList().stream().filter(f -> f.getId() == id).findFirst()
-                .orElseThrow(() -> new UserNotFoundException(id));
+        return listIdUser;
     }
 }

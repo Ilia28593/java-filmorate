@@ -1,90 +1,73 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-public class FilmService implements FilmStorage {
+public class FilmService {
+    private final UserDbStorage userDbStorage;
+    private final JdbcTemplate jdbcTemplate;
+    private final FilmDbStorage filmDbStorage;
 
-    private final FilmStorage inMemoryFilmStorage;
+    public void addLike(long id, long userId) {
+        filmDbStorage.filmById(id);
+        String sqlQuery = """
+                insert into film_likes(user_id, film_id)
+                values (?, ?)
+                """;
+        jdbcTemplate.update(sqlQuery, userId, id);
+    }
 
-    @Override
-    public void addFilm(Film film) {
-        if (!checkContainFilms(film)) {
-            inMemoryFilmStorage.addFilm(film);
-        } else {
-            throw new ObjectAlreadyExistsException(String.format("This film %s is content in repository.", film.getName()));
+    public void deleteLike(Long id, Long userId) {
+        filmDbStorage.filmById(id);
+        userDbStorage.UserById(userId);
+        String sqlQuery = """
+                delete from film_likes 
+                where film_id = ? 
+                and user_id = ?
+                """;
+        jdbcTemplate.update(sqlQuery, id, userId);
+
+    }
+
+    public List<Film> getPopular(Integer count) {
+        List<Film> filmSet = new ArrayList<>();
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(
+                """
+                        select FILMS.ID, 
+                        count(film_likes.USER_ID) as count_user  
+                        from films 
+                        left outer join film_likes on FILMS.ID = FILM_LIKES.FILM_ID 
+                        group by FILMS.ID
+                        order by count_user
+                        desc limit ?
+                        """, count);
+        while (rs.next()) {
+            filmSet.add(filmDbStorage.filmById((long) rs.getInt("id")));
         }
+        return filmSet;
     }
 
-    @Override
-    public void updateFilm(Film film) {
-        if (checkContainFilms(film)) {
-            inMemoryFilmStorage.updateFilm(film);
-        } else {
-            throw new FilmNotFoundException(film.getId());
-        }
+    public ArrayList<Film> getFilmById(Long id) {
+        return new ArrayList<>(Collections.singleton(filmDbStorage.filmById(id)));
     }
 
-    @Override
-    public void removeFilm(Film film) {
-        if (checkContainFilms(film)) {
-            inMemoryFilmStorage.removeFilm(film);
-        } else {
-            throw new FilmNotFoundException(film.getId());
-        }
+    public Film createFilm(Film film) {
+        return filmDbStorage.filmCreate(film);
     }
 
-    @Override
-    public Set<Film> getSetFilm() {
-        return inMemoryFilmStorage.getSetFilm();
-    }
-
-    public Film getFilm(long filmId) {
-        return getSetFilm().stream().filter(f -> f.getId() == filmId).findFirst()
-                .orElseThrow(() -> new FilmNotFoundException(filmId));
-    }
-
-    public boolean checkContainFilms(Film film) {
-        return getSetFilm().stream().anyMatch(u -> u.getId() == film.getId());
-    }
-
-    public List<Film> getFavoriteFilms(int sizeList) {
-        List<Film> df = getSetFilm().stream()
-                .sorted(Comparator.comparingInt(o -> o.getLikeList().size()))
-                .collect(Collectors.toList());
-        Collections.reverse(df);
-        log.info("getFavoriteFilms {}", df);
-        return df.stream().limit(Math.min(getSetFilm().size(), sizeList)).collect(Collectors.toList());
-    }
-
-    public Film addLikesInFIlm(long idFilm, long userId) {
-        getFilm(userId);
-        getFilm(idFilm).getLikeList().add(userId);
-        log.info("addLikesInFIlm {}", getFilm(idFilm));
-        return getFilm(idFilm);
-    }
-
-    public Film removeLike(long idFilm, long idUser) {
-        if (getFilm(idFilm).getLikeList().contains(idUser)) {
-            getFilm(idFilm).getLikeList().remove(idUser);
-            return getFilm(idFilm);
-        } else {
-            throw new UserNotFoundException(idUser);
-        }
+    public Film updateFilm(Film film) {
+        filmDbStorage.filmById(film.getId());
+        return filmDbStorage.filmUpdate(film);
     }
 }
