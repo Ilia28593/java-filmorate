@@ -46,12 +46,12 @@ public class UserDbStorage implements UserStorage {
     public User updateUser(User user) {
         String sqlQuery = "update users set email = ?, login = ?, name = ?, birthday = ? where id = ?";
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
-        return UserById(user.getId());
+        return userById(user.getId());
     }
 
 
     @Override
-    public User UserById(Long id) {
+    public User userById(Long id) {
         SqlRowSet rs = jdbcTemplate.queryForRowSet(" select * from users where id = ?", id);
         if (rs.next()) {
             User newUser = new User(

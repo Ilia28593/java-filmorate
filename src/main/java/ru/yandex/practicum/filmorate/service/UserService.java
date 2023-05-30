@@ -20,8 +20,8 @@ public class UserService {
     private final JdbcTemplate jdbcTemplate;
 
     public void addFriends(long id, long friendId) {
-        userDbStorage.UserById(id);
-        userDbStorage.UserById(friendId);
+        userDbStorage.userById(id);
+        userDbStorage.userById(friendId);
         String sqlQuery = "insert into users_friend(user_id, friend_id) values (?, ?)";
         jdbcTemplate.update(sqlQuery,
                 id, friendId
@@ -31,8 +31,8 @@ public class UserService {
     }
 
     public void deleteFriends(Long id, Long friendId) {
-        userDbStorage.UserById(id);
-        userDbStorage.UserById(friendId);
+        userDbStorage.userById(id);
+        userDbStorage.userById(friendId);
         String sqlQuery = "delete from users_friend where user_id = ? and friend_id = ?";
         jdbcTemplate.update(sqlQuery, id, friendId);
 
@@ -61,7 +61,7 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        return userDbStorage.UserById(userId);
+        return userDbStorage.userById(userId);
     }
 
     public User create(User user) {
@@ -69,13 +69,13 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        userDbStorage.UserById(user.getId());
+        userDbStorage.userById(user.getId());
         userDbStorage.updateUser(user);
         return user;
     }
 
     public Set<Long> getSetIdFriends(Long userId) {
-        userDbStorage.UserById(userId);
+        userDbStorage.userById(userId);
         Set<Long> listIdUser = new HashSet<>();
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from users_friend where user_id = ?", userId);
         while (rs.next()) {

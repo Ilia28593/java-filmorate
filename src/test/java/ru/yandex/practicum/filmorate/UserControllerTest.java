@@ -67,7 +67,7 @@ class UserControllerTest {
 
         userStorage.updateUser(newUser);
 
-        User newUser2 = userStorage.UserById(newUser.getId());
+        User newUser2 = userStorage.userById(newUser.getId());
 
         assertEquals(newUser.getEmail(), newUser2.getEmail(), "Email не совпадают");
         assertEquals(newUser.getBirthday(), newUser2.getBirthday(), "Дата рождения не совпадают");

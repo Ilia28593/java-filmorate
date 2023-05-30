@@ -27,7 +27,7 @@ public class FilmService {
 
     public void deleteLike(Long id, Long userId) {
         filmDbStorage.filmById(id);
-        userDbStorage.UserById(userId);
+        userDbStorage.userById(userId);
         String sqlQuery = "delete from film_likes where film_id = ? and user_id = ?";
         jdbcTemplate.update(sqlQuery, id, userId);
     }
