@@ -16,9 +16,7 @@ public class MpaDbStorage {
     public LinkedHashSet<Mpa> getAllMpa() {
 
         LinkedHashSet<Mpa> mpas = new LinkedHashSet<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("""
-        select * 
-        from mpa """);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from mpa ");
         while (rs.next()) {
             Mpa mpa = Mpa.forValues(rs.getInt("mpa_id"));
             mpas.add(mpa);
