@@ -49,13 +49,13 @@ public class FilmDbStorage implements FilmStorage {
         id.getAndIncrement();
         film.setId(Long.parseLong(String.valueOf(id)));
 
-        String sqlQuery = "insert into films(id, name, description, releaseDate, duration, rate,mpa) values (?, ?, ?, ?, ?, ?, ?)";
+        String sqlQuery = "insert into films(id, name, description, releaseDate, duration, rate,mpa) values (?, ?, ?, ?, ?, ?, ?)"
         jdbcTemplate.update(sqlQuery, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId());
 
         List<Genre> genreList = film.getGenres();
         if (genreList != null) {
             for (Genre genreId : genreList) {
-                String sqlQuery2 = "insert into films_genres (FILM_ID, GENRE_ID);";
+                String sqlQuery2 = "insert into films_genres (FILM_ID, GENRE_ID)";
                 jdbcTemplate.update(sqlQuery2, film.getId(), genreId.getId());
             }
         }
