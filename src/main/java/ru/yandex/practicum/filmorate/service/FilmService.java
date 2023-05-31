@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
