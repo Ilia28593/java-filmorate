@@ -42,8 +42,8 @@ public class FilmService {
         return filmSet;
     }
 
-    public ArrayList<Film> getFilmById(Long id) {
-        return new ArrayList<>(Collections.singleton(filmDbStorage.filmById(id)));
+    public Film getFilmById(Long id) {
+        return filmDbStorage.filmById(id);
     }
 
     public Film createFilm(Film film) {

@@ -19,7 +19,7 @@ public class UserService {
     private final UserDbStorage userDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public void addFriends(long id, long friendId) {
+    public void addFriend(long id, long friendId) {
         userDbStorage.userById(id);
         userDbStorage.userById(friendId);
         String sqlQuery = "insert into users_friend(user_id, friend_id) values (?, ?)";
