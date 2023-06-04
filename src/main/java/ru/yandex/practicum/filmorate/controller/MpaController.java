@@ -28,7 +28,7 @@ public class MpaController {
     }
 
     @GetMapping(value = "/mpa/{id}")
-    public Mpa getMap(@Valid @PathVariable("id") long id){
+    public Mpa getMap(@Valid @PathVariable("id") long id) {
         log.info("Получен запрос GET genres");
         return mpaDbStorage.get(id);
     }
