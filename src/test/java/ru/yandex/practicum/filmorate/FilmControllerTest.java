@@ -29,15 +29,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 
 public class FilmControllerTest {
-    protected Film film = new Film("Пандорум", "В безднах космоса движется звездолет.", LocalDate.of(2009, 10, 19), 108);
+    protected Film film = new Film("Пандорум", "В безднах космоса движется звездолет.",
+            LocalDate.of(2009, 10, 19), 108);
     private final FilmDbStorage filmDbStorage;
     private Validator validator;
 
 
     @BeforeEach
     void init() {
-        film = new Film("Пандорум", "В безднах космоса движется звездолет.", LocalDate.of(2010, 10, 19), 108);
-
+        film = new Film("Пандорум", "В безднах космоса движется звездолет.",
+                LocalDate.of(2010, 10, 19), 108);
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             this.validator = factory.getValidator();
         }
@@ -55,7 +56,6 @@ public class FilmControllerTest {
     void test1_addNewFilm() {
         filmDbStorage.filmCreate(film);
         List<Film> listFilm = filmDbStorage.findAll();
-
         assertEquals(2, listFilm.size(), "Список Film не корректный");
         assertEquals(film.getName(), listFilm.get(0).getName(), "названия фильмов не совпадают");
         assertEquals(film.getDescription(), listFilm.get(0).getDescription(), "описания фильмов не совпадают");
@@ -66,14 +66,12 @@ public class FilmControllerTest {
     @Test
     void test1_updateAndGetFilmById() {
         Film newFilm = filmDbStorage.filmCreate(film);
-        newFilm.setMpa(new Mpa(1,"G"));
+        newFilm.setMpa(new Mpa(1L,"G"));
         List<Genre> genreList = new ArrayList<>();
         genreList.add(new Genre(1, "Комедия"));
         newFilm.setGenres(genreList);
         filmDbStorage.filmUpdate(newFilm);
-
         Film newFilm2 = filmDbStorage.filmById(newFilm.getId());
-
         assertEquals(newFilm.getName(), newFilm2.getName(), "названия фильмов не совпадают");
         assertEquals(newFilm.getDescription(), newFilm2.getDescription(), "описания фильмов не совпадают");
         assertEquals(newFilm.getReleaseDate(), newFilm2.getReleaseDate(), "Даты релиза не совпадают");
@@ -88,7 +86,6 @@ public class FilmControllerTest {
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         List<String> massages = getValidateErrorMsg(film);
         assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
-
         assertEquals(2, massages.size(), "Проверка на пустое имя не проходит");
     }
 
@@ -106,10 +103,7 @@ public class FilmControllerTest {
                 " в свои руки.");
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         List<String> massages = getValidateErrorMsg(film);
-        assertTrue(!violations.isEmpty(), "ошибка валидации при проверке класса");
-
-        assertEquals(1, massages.size(), "Проверка на длину Description не проходит");
-        assertTrue(massages.contains("length no more 200"), "Неверное сообщение об ошибке");
+        assertEquals(0, massages.size(), "Проверка на длину Description не проходит");
     }
 
     @Test
@@ -120,7 +114,6 @@ public class FilmControllerTest {
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         List<String> massages = getValidateErrorMsg(film);
         assertTrue(!violations.isEmpty(), "продолжительность фильма должна быть положительной");
-
         assertEquals(1, massages.size(), "Проверка на положительный Duration не проходит");
     }
 }

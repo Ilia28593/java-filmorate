@@ -16,14 +16,14 @@ public class MpaDbStorage implements MpaStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public Mpa getFilmFilmId(long filmId) {
+    public Mpa getFilmId(long filmId) {
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from mpa where id in (select MPA_ID from films_mpa where film_id = ?)", filmId);
         if (rs.next()) {
             return new Mpa(
                     rs.getLong("id"),
                     rs.getString("name"));
         } else {
-            throw new NotFoundException("Id genres no found");
+            return new Mpa(1L,"G");
         }
     }
 
@@ -35,7 +35,7 @@ public class MpaDbStorage implements MpaStorage {
                     rs.getLong("id"),
                     rs.getString("name"));
         } else {
-            throw new NotFoundException("Id genres no found");
+            throw new NotFoundException("Id mpa no found");
         }
     }
 

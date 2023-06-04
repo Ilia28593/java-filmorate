@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -38,7 +37,7 @@ public class FilmDbStorage implements FilmStorage {
                     rs.getInt("duration")
             );
             newFilm.setId(rs.getInt("id"));
-            newFilm.setMpa(mpaDbStorage.getFilmFilmId(rs.getInt("id")));
+            newFilm.setMpa(mpaDbStorage.getFilmId(rs.getInt("id")));
             List<Genre> listGenres = getGenres(Long.valueOf(rs.getInt("id")));
             newFilm.setGenres(listGenres);
             films.add(newFilm);
@@ -48,7 +47,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Transactional
     @Override
-    public Film filmCreate(@NotNull Film film) {
+    public Film filmCreate(Film film) {
         id.getAndIncrement();
         film.setId(Long.parseLong(String.valueOf(id)));
         String sqlQuery = "insert into films(id, name, description, releaseDate, duration, rate) " +
@@ -95,7 +94,11 @@ public class FilmDbStorage implements FilmStorage {
             Film newFilm = new Film(rs.getString("name").trim(), rs.getString("description").trim(),
                     rs.getDate("releaseDate").toLocalDate(), rs.getInt("duration"));
             newFilm.setId(rs.getInt("id"));
-            newFilm.setMpa(mpaDbStorage.getFilmFilmId(rs.getInt("id")));
+            try {
+                newFilm.setMpa(mpaDbStorage.getFilmId(rs.getInt("id")));
+            } catch (RuntimeException nf){
+                newFilm.setName(null);
+            }
             newFilm.setGenres(getGenres(id));
             return newFilm;
         } else {
