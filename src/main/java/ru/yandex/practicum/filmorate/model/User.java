@@ -1,29 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
+@NoArgsConstructor
 public class User {
-    @Min(1)
     private long id;
     @Email
     private String email;
     @NotBlank
+    @NotNull
     private String login;
-
     private String name;
-
+    @Past
     private LocalDate birthday;
-    @JsonIgnore
-    private Set<Long> setFriendsId = new HashSet<>();
+
 
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;
@@ -31,4 +29,5 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
+
 }
