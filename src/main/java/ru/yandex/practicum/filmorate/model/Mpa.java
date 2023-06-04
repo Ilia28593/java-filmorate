@@ -1,34 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import lombok.*;
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+import java.io.Serializable;
+import java.util.Objects;
+
+@Data
 @AllArgsConstructor
-@Getter
-public enum Mpa {
+@NoArgsConstructor
+@Builder
+public class Mpa implements Serializable {
+    private Long id;
+    private String name;
 
-    G(1, "G"),
-    PG(2, "PG"),
-    PG13(3, "PG-13"),
-    R(4, "R"),
-    NC17(5, "NC-17");
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mpa mpa = (Mpa) o;
+        return Objects.equals(id, mpa.id) && Objects.equals(name, mpa.name);
+    }
 
-    private final int id;
-
-    private final String name;
-
-    @JsonCreator
-    public static ru.yandex.practicum.filmorate.model.Mpa forValues(@JsonProperty("id") int id) {
-        for (ru.yandex.practicum.filmorate.model.Mpa mpa : ru.yandex.practicum.filmorate.model.Mpa.values()) {
-            if (mpa.id == id) {
-                return mpa;
-            }
-        }
-        throw new FilmNotFoundException(id);
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 }

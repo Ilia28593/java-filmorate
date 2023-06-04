@@ -28,14 +28,13 @@ public class GenreDbStorage {
         return genres;
     }
 
-    public Genre getGenresById(Integer id) {
+    public Genre getGenresById(long id) {
         SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from genres where id = ?", id);
         if (rs.next()) {
-            Genre genre = new Genre(
+            return new Genre(
                     rs.getInt("id"),
                     rs.getString("genres_name")
             );
-            return genre;
         } else {
             throw new NotFoundException("Id genres no found");
         }

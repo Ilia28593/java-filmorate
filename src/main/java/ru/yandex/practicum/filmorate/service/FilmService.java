@@ -18,10 +18,10 @@ public class FilmService {
     private final JdbcTemplate jdbcTemplate;
     private final FilmDbStorage filmDbStorage;
 
-    public void addLike(long id, long userId) {
-        filmDbStorage.filmById(id);
-        String sqlQuery = "insert into film_likes(user_id, film_id) values (?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, id);
+    public void addLike(long filmId, long userId) {
+        filmDbStorage.filmById(filmId);
+        String sqlQuery = "insert into film_likes (user_id, film_id) values (?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, filmId);
     }
 
     public void deleteLike(Long id, Long userId) {
@@ -50,7 +50,6 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        filmDbStorage.filmById(film.getId());
         return filmDbStorage.filmUpdate(film);
     }
 }

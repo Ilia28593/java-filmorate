@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
@@ -65,12 +64,6 @@ public class FilmController {
     public Film getFilmById(@Valid @PathVariable("id") Long id) {
         log.info(" GET film by id");
         return filmDbStorage.filmById(id);
-    }
-
-    @GetMapping("/mpa/{id}")
-    public Mpa getMpaById(@Valid @PathVariable("id") Integer id) {
-        log.info("GET film by id");
-        return Mpa.forValues(id);
     }
 
     private Film checkValidationFilm(Film film) throws ValidationException {
