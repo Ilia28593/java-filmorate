@@ -75,7 +75,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getRate(), film.getId());
         String sqlUpdate = "update films_mpa set MPA_ID = ? where FILM_ID = ?";
-        jdbcTemplate.update(sqlUpdate, film.getMpa().getId(),film.getId());
+        jdbcTemplate.update(sqlUpdate, film.getMpa().getId(), film.getId());
         String sqlQueryDel = "delete from films_genres where FILM_ID = ?";
         jdbcTemplate.update(sqlQueryDel, film.getId());
         if (film.getGenres() != null) {
@@ -94,11 +94,7 @@ public class FilmDbStorage implements FilmStorage {
             Film newFilm = new Film(rs.getString("name").trim(), rs.getString("description").trim(),
                     rs.getDate("releaseDate").toLocalDate(), rs.getInt("duration"));
             newFilm.setId(rs.getInt("id"));
-            try {
-                newFilm.setMpa(mpaDbStorage.getFilmId(rs.getInt("id")));
-            } catch (RuntimeException nf){
-                newFilm.setName(null);
-            }
+            newFilm.setMpa(mpaDbStorage.getFilmId(rs.getInt("id")));
             newFilm.setGenres(getGenres(id));
             return newFilm;
         } else {
